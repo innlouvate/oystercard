@@ -2,11 +2,32 @@ require 'oystercard'
 
 describe Oystercard do
   subject(:oystercard) {described_class.new}
-  let(:station) { double :station }
+  let(:entry_station) { double :entry_station }
+  let(:exit_station) { double :exit_station }
 
-  describe "#balance" do
-    it "is initialised with a balance of 0 by default" do
-      expect(oystercard.balance).to eq 0
+  context 'card is initialised' do
+    describe "#balance" do
+      it "is initialised with a balance of 0 by default" do
+        expect(oystercard.balance).to eq 0
+      end
+    end
+
+    describe '#touch_in' do
+      it 'raises an exception if the balance is less than min journey price' do
+        expect{ oystercard.touch_in(entry_station) }.to raise_error 'Please top up your card.'
+      end
+    end
+
+    describe '#in_journey?' do
+      it 'checks that when initialised the card is not in journey' do
+        expect(oystercard).to_not be_in_journey
+      end
+    end
+
+    describe '#journey_list' do
+      it 'includes empty journey_list' do
+        expect(oystercard.journey_list).to eq []
+      end
     end
   end
 
@@ -22,66 +43,49 @@ describe Oystercard do
     end
   end
 
-
-  describe '#touch_in' do
-    # xit 'sets the oystercard to being in journey' do
-    #   oystercard.top_up(Oystercard::FARE_MIN)
-    #   expect(oystercard.touch_in(station)).to eq true
-    # end
-
-    it 'raises an exception if the balance is inferior to £1' do
-      expect{ oystercard.touch_in(station) }.to raise_error 'Please top up your card.'
-    end
-
-    it 'when touched in logs entry station' do
+  context 'starting a new journey' do
+    before do
       oystercard.top_up(Oystercard::FARE_MIN)
-      oystercard.touch_in(station)
-      expect(oystercard.entry_station).to eq station
+    end
+
+    describe '#touch_in' do
+      it 'when touched in logs entry station' do
+        oystercard.touch_in(entry_station)
+        expect(oystercard.entry_station).to eq entry_station
+      end
     end
   end
 
-  describe '#touch_out' do
-    # xit 'sets the oystercard to being off journey' do
-    #   expect(oystercard.touch_out).to eq false
-    # end
-
-    it 'reduces the balance by the minimum fare' do
-      expect{ oystercard.touch_out(station) }.to change { oystercard.balance }.by(-Oystercard::FARE_MIN)
-    end
-
-    it 'when touched out removes entry station' do
+  context 'finishing your first journey' do
+    before do
       oystercard.top_up(Oystercard::FARE_MIN)
-      oystercard.touch_in(station)
-      oystercard.touch_out(station)
-      expect(oystercard.entry_station).to eq nil
+      oystercard.touch_in(entry_station)
     end
-  end
 
-  describe '#in_journey?' do
-    it 'checks that when initialised the card is not in journey' do
-      expect(oystercard).to_not be_in_journey
+    describe '#touch_out' do
+      it 'reduces the balance by the minimum fare' do
+        expect{ oystercard.touch_out(exit_station) }.to change { oystercard.balance }.by(-Oystercard::FARE_MIN)
+      end
+      it 'when touched out removes entry station' do
+        oystercard.touch_out(exit_station)
+        expect(oystercard.entry_station).to eq nil
+      end
     end
-  end
 
-  describe 'Journey capture hash' do
-    it 'expects touch in station to become key in hash' do
-      expect(oystercard).to receive(:journey_capture)
-      oystercard.touch_out(station)
+    describe 'Journey capture hash' do
+      it 'expects touch in station to become key in hash' do
+        expect(oystercard).to receive(:journey_capture)
+        oystercard.touch_out(exit_station)
+      end
     end
-  end
 
-  describe 'initialize' do
-    it 'includes empty journey_list' do
-      expect(oystercard.journey_list).to eq []
-    end
-  end
-
-  describe 'journey created' do
-    it 'touching in and out creates one journey' do
-      oystercard.top_up(Oystercard::FARE_MIN)
-      oystercard.touch_in(station)
-      oystercard.touch_out(station)
-      expect(oystercard.journey_list).to include(station => station)
+    describe 'journey created' do
+      it 'touching in and out creates one journey' do
+        oystercard.top_up(Oystercard::FARE_MIN)
+        oystercard.touch_in(entry_station)
+        oystercard.touch_out(exit_station)
+        expect(oystercard.journey_list).to include(entry_station => exit_station)
+      end
     end
   end
 end
