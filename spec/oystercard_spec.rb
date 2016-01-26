@@ -46,13 +46,13 @@ describe Oystercard do
     # end
 
     it 'reduces the balance by the minimum fare' do
-      expect{oystercard.touch_out}.to change { oystercard.balance }.by -Oystercard::FARE_MIN
+      expect{ oystercard.touch_out(station) }.to change { oystercard.balance }.by(-Oystercard::FARE_MIN)
     end
 
     it 'when touched out removes entry station' do
       oystercard.top_up(Oystercard::FARE_MIN)
       oystercard.touch_in(station)
-      oystercard.touch_out
+      oystercard.touch_out(station)
       expect(oystercard.entry_station).to eq nil
     end
   end
@@ -63,4 +63,25 @@ describe Oystercard do
     end
   end
 
+  describe 'Journey capture hash' do
+    it 'expects touch in station to become key in hash' do
+      expect(oystercard).to receive(:journey_capture)
+      oystercard.touch_out(station)
+    end
+  end
+
+  describe 'initialize' do
+    it 'includes empty journey_list' do
+      expect(oystercard.journey_list).to eq []
+    end
+  end
+
+  describe 'journey created' do
+    it 'touching in and out creates one journey' do
+      oystercard.top_up(Oystercard::FARE_MIN)
+      oystercard.touch_in(station)
+      oystercard.touch_out(station)
+      expect(oystercard.journey_list).to include(station => station)
+    end
+  end
 end
