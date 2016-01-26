@@ -18,11 +18,11 @@ describe Oystercard do
       end
     end
 
-    describe '#in_journey?' do
-      it 'checks that when initialised the card is not in journey' do
-        expect(oystercard).to_not be_in_journey
-      end
-    end
+    # describe '#in_journey?' do
+    #   it 'checks that when initialised the card is not in journey' do
+    #     expect(oystercard).to_not be_in_journey
+    #   end
+    # end
 
     describe '#journey_list' do
       it 'includes empty journey_list' do
@@ -49,9 +49,9 @@ describe Oystercard do
     end
 
     describe '#touch_in' do
-      it 'when touched in logs entry station' do
+      it 'when touched in journey is initialised' do
+        expect(oystercard.current_journey).to receive(:new)
         oystercard.touch_in(entry_station)
-        expect(oystercard.entry_station).to eq entry_station
       end
     end
   end
@@ -60,15 +60,17 @@ describe Oystercard do
     before do
       oystercard.top_up(Oystercard::FARE_MIN)
       oystercard.touch_in(entry_station)
+      allow(oystercard.current_journey).to receive(:exit)
     end
 
     describe '#touch_out' do
       it 'reduces the balance by the minimum fare' do
         expect{ oystercard.touch_out(exit_station) }.to change { oystercard.balance }.by(-Oystercard::FARE_MIN)
       end
-      it 'when touched out removes entry station' do
+
+      it 'calls exit method on the current journey' do
+        expect(oystercard.current_journey).to receive(:exit)
         oystercard.touch_out(exit_station)
-        expect(oystercard.entry_station).to eq nil
       end
     end
 
@@ -80,7 +82,7 @@ describe Oystercard do
     end
 
     describe 'journey created' do
-      it 'touching in and out creates one journey' do
+      xit 'touching in and out creates one journey' do
         oystercard.top_up(Oystercard::FARE_MIN)
         oystercard.touch_in(entry_station)
         oystercard.touch_out(exit_station)
