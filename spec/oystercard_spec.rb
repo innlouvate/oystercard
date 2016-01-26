@@ -18,9 +18,8 @@ describe Oystercard do
 
   describe '#top_up' do
     it 'raises an error if topping up more than the max limit' do
-      max_balance = Oystercard::BALANCE_MAX
-      oystercard.top_up(max_balance)
-      expect{ oystercard.top_up(1) }.to raise_error 'Top-up exceeds maximum limit of #{max_balance}'
+      oystercard.top_up(Oystercard::BALANCE_MAX)
+      expect{ oystercard.top_up(1) }.to raise_error{'Top-up exceeds maximum limit of #{Oystercard::BALANCE_MAX}'}
     end
   end
 
