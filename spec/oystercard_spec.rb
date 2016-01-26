@@ -50,7 +50,7 @@ describe Oystercard do
 
     describe '#touch_in' do
       it 'when touched in journey is initialised' do
-        expect(oystercard.current_journey).to receive(:new)
+        expect(oystercard.journey_class).to receive(:new)
         oystercard.touch_in(entry_station)
       end
     end

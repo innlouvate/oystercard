@@ -3,7 +3,7 @@ require_relative 'journey'
 
 class Oystercard
 
-  attr_reader :balance, :journey_list, :entry_station, :current_journey
+  attr_reader :balance, :journey_list, :entry_station, :journey_class, :current_journey
   BALANCE_MAX = 90
   FARE_MIN = 1
   def initialize(journey_class = Journey)
