@@ -11,6 +11,7 @@ describe Oystercard do
   before do
     allow(class_double).to receive(:new).and_return(my_journey)
     allow(my_journey).to receive(:exit)
+    allow(my_journey).to receive(:fare).and_return(Journey::FARE_MIN)
   end
 
   context 'card is initialised' do
@@ -60,7 +61,7 @@ describe Oystercard do
       it 'when touched in journey is initialised' do
         # card = described_class.new(class_double)
         # card.top_up(10)
-        expect(class_double).to receive(:new)
+        expect(class_double).to receive(:new).with entry_station
         oystercard.touch_in(entry_station)
       end
     end
@@ -97,4 +98,16 @@ describe Oystercard do
       end
     end
   end
+  
+  context 'not touched in' do
+    describe 'touching out' do
+      it 'should create a new journey' do
+        expect(class_double).to receive(:new).with nil
+        oystercard.touch_out(exit_station)
+      end
+    end
+  end
+  
+  
+  
 end

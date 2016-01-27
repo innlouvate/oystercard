@@ -18,19 +18,21 @@ class Oystercard
   end
 
   def touch_in(station)
+    if @current_journey != nil
+    end_journey(nil)
+    end
     raise 'Please top up your card.' if @balance < Journey::FARE_MIN
     # @entry_station = station
     @current_journey = @journey_class.new(station)
   end
 
   def touch_out(station)
-    deduct(Journey::FARE_MIN)
-    @current_journey.exit(station)
-    journey_capture(station)
-    # @entry_station = nil
+    if @current_journey == nil
+      @current_journey = @journey_class.new(nil)
+    end
+    end_journey(station)
   end
-  #
-
+  
 
   private
 
@@ -38,8 +40,16 @@ class Oystercard
     @balance -= value
   end
 
-  def journey_capture(exitstation)
-    journey = { @entry_station => exitstation }
-     @journey_list << journey
+  def journey_capture
+    #journey = { @entry_station => exitstation }
+     @journey_list << @current_journey
+     @current_journey = nil 
   end
-end
+  
+  def end_journey(station)
+    @current_journey.exit(station)
+    deduct(@current_journey.fare)
+    journey_capture
+    
+  end
+end 
