@@ -1,9 +1,17 @@
 require 'oystercard'
 
 describe Oystercard do
-  subject(:oystercard) {described_class.new}
+  # subject(:oystercard) {described_class.new(journey_klass)}
   let(:entry_station) { double :entry_station }
   let(:exit_station) { double :exit_station }
+  let(:class_double) { double :class_double }
+  # let(:my_journey) {double :class_double.new(entry_station) }
+  subject(:oystercard) { described_class.new(class_double) }
+
+  before do
+    allow(class_double).to receive(:new).and_return(:my_journey)
+    # allow(journey).to receive(:exit)
+  end
 
   context 'card is initialised' do
     describe "#balance" do
@@ -50,7 +58,9 @@ describe Oystercard do
 
     describe '#touch_in' do
       it 'when touched in journey is initialised' do
-        expect(oystercard.journey_class).to receive(:new)
+        # card = described_class.new(class_double)
+        # card.top_up(10)
+        expect(class_double).to receive(:new)
         oystercard.touch_in(entry_station)
       end
     end
@@ -60,7 +70,6 @@ describe Oystercard do
     before do
       oystercard.top_up(Oystercard::FARE_MIN)
       oystercard.touch_in(entry_station)
-      allow(oystercard.current_journey).to receive(:exit)
     end
 
     describe '#touch_out' do
@@ -69,13 +78,13 @@ describe Oystercard do
       end
 
       it 'calls exit method on the current journey' do
-        expect(oystercard.current_journey).to receive(:exit)
+        expect(class_double).to receive(:exit)
         oystercard.touch_out(exit_station)
       end
     end
 
     describe 'Journey capture hash' do
-      it 'expects touch in station to become key in hash' do
+      xit 'expects touch in station to become key in hash' do
         expect(oystercard).to receive(:journey_capture)
         oystercard.touch_out(exit_station)
       end

@@ -19,8 +19,8 @@ describe Journey do
   end
 
   describe 'exit' do
-    xit 'returns itself' do
-      expect(journey.exit).to eq self
+    it 'returns itself' do
+      expect(journey.exit(exit_station)).to eq journey
     end
   end
 
