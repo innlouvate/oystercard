@@ -4,14 +4,15 @@ describe Oystercard do
   # subject(:oystercard) {described_class.new(journey_klass)}
   let(:entry_station) { double :entry_station }
   let(:exit_station) { double :exit_station }
-  let(:class_double) { double :class_double }
-  let(:my_journey) { double :my_journey }
-  subject(:oystercard) { described_class.new(class_double) }
+  # let(:class_double) { double :class_double }
+  let(:journey_log) { double :journey_log }
+  subject(:oystercard) { described_class.new(journey_log) }
 
   before do
-    allow(class_double).to receive(:new).and_return(my_journey)
-    allow(my_journey).to receive(:exit)
-    allow(my_journey).to receive(:fare).and_return(Journey::FARE_MIN)
+    # allow(class_double).to receive(:new).and_return(my_journey)
+    allow(journey_log).to receive(:start_journey)
+    allow(journey_log).to receive(:exit_journey)
+    # allow(my_journey).to receive(:fare).and_return(Journey::FARE_MIN)
   end
 
   context 'card is initialised' do
@@ -33,11 +34,11 @@ describe Oystercard do
     #   end
     # end
 
-    describe '#journey_list' do
-      it 'includes empty journey_list' do
-        expect(oystercard.journey_list).to eq []
-      end
-    end
+    # describe '#journey_list' do
+    #   it 'includes empty journey_list' do
+    #     expect(oystercard.journey_log).to eq []
+    #   end
+    # end
   end
 
   describe '#top_up' do
@@ -52,20 +53,20 @@ describe Oystercard do
     end
   end
 
-  context 'starting a new journey' do
-    before do
-      oystercard.top_up(Journey::FARE_MIN)
-    end
-
-    describe '#touch_in' do
-      it 'when touched in journey is initialised' do
-        # card = described_class.new(class_double)
-        # card.top_up(10)
-        expect(class_double).to receive(:new).with entry_station
-        oystercard.touch_in(entry_station)
-      end
-    end
-  end
+  # context 'starting a new journey' do
+  #   before do
+  #     oystercard.top_up(Journey::FARE_MIN)
+  #   end
+  #
+  #   describe '#touch_in' do
+  #     it 'when touched in journey is initialised' do
+  #       # card = described_class.new(class_double)
+  #       # card.top_up(10)
+  #       expect(class_double).to receive(:new).with entry_station
+  #       oystercard.touch_in(entry_station)
+  #     end
+  #   end
+  # end
 
   context 'finishing your first journey' do
     before do
@@ -78,36 +79,36 @@ describe Oystercard do
         expect{ oystercard.touch_out(exit_station) }.to change { oystercard.balance }.by(-Journey::FARE_MIN)
       end
 
-      it 'calls exit method on the current journey' do
-        expect(my_journey).to receive(:exit)
-        oystercard.touch_out(exit_station)
-      end
-
-      it 'expects journey capture to be run' do
-        expect(oystercard).to receive(:journey_capture)
-        oystercard.touch_out(exit_station)
-      end
+      # it 'calls exit method on the current journey' do
+      #   expect(my_journey).to receive(:exit)
+      #   oystercard.touch_out(exit_station)
+      # end
+      #
+      # it 'expects journey capture to be run' do
+      #   expect(oystercard).to receive(:journey_capture)
+      #   oystercard.touch_out(exit_station)
+      # end
     end
 
-    describe 'journey created' do
-      xit 'touching in and out creates one journey' do
-        oystercard.top_up(Journey::FARE_MIN)
-        oystercard.touch_in(entry_station)
-        oystercard.touch_out(exit_station)
-        expect(oystercard.journey_list).to include(entry_station => exit_station)
-      end
-    end
+    # describe 'journey created' do
+    #   xit 'touching in and out creates one journey' do
+    #     oystercard.top_up(Journey::FARE_MIN)
+    #     oystercard.touch_in(entry_station)
+    #     oystercard.touch_out(exit_station)
+    #     expect(oystercard.journey_list).to include(entry_station => exit_station)
+    #   end
+    # end
   end
-  
-  context 'not touched in' do
-    describe 'touching out' do
-      it 'should create a new journey' do
-        expect(class_double).to receive(:new).with nil
-        oystercard.touch_out(exit_station)
-      end
-    end
-  end
-  
-  
-  
+
+  # context 'not touched in' do
+  #   describe 'touching out' do
+  #     xit 'should create a new journey' do
+  #       expect(class_double).to receive(:new).with nil
+  #       oystercard.touch_out(exit_station)
+  #     end
+  #   end
+  # end
+
+
+
 end
