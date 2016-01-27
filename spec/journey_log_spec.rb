@@ -4,15 +4,16 @@ describe JourneyLog do
   # subject(:oystercard) {described_class.new(journey_klass)}
   let(:entry_station) { double :entry_station }
   let(:exit_station) { double :exit_station }
-  let(:class_double) { double :class_double }
-  let(:current_journey) { double :current_journey }
-  subject(:journeylog) { described_class.new(class_double) }
+  let(:journey_klass) { double :journey_klass, new: journey}
+  let(:journey) { double :journey, complete_journey?: false, fare: Journey::FARE_MIN }
+  subject(:journeylog) { described_class.new(journey_klass) }
 
   before do
-    allow(class_double).to receive(:new).and_return(current_journey)
-    # allow(my_journey).to receive(:start_journey)
-    allow(current_journey).to receive(:exit)
-    allow(current_journey).to receive(:fare).and_return(Journey::FARE_MIN)
+    # allow(journey_klass).to receive(:new).and_return(current_journey)
+    allow(journey).to receive(:exit).and_return(journey)
+    allow(journey).to receive(:entry_station)
+    allow(journey_klass).to receive(:new).and_return(journey)
+    # allow(journey).to receive(:fare).and_return(Journey::FARE_MIN)
   end
 
   context 'initialising the log' do
@@ -31,47 +32,55 @@ describe JourneyLog do
 
     describe '#start_journey' do
       it 'start creates new journey instance' do
-        expect(class_double).to receive(:new).with entry_station
+        expect(journey_klass).to receive(:new).with(entry_station: entry_station)
         journeylog.start_journey(entry_station)
+      end
+      it 'records a new journey' do
+        journeylog.start_journey(entry_station)
+        expect(journeylog.view_log).to include(journey)
       end
     end
   end
 
 
   context 'finishing the first journey' do
-    before do
-      # oystercard.top_up(Journey::FARE_MIN)
-      journeylog.start_journey(entry_station)
-    end
-
     describe '#exit_journey' do
       it 'calls exit method on the current journey' do
-        expect(current_journey).to receive(:exit)
+        journeylog.start_journey(entry_station)
+        expect(journey).to receive(:exit)
         journeylog.exit_journey(exit_station)
       end
 
-      it 'expects journey to be logged' do
+      # it 'expects journey to be logged' do
+      #   journeylog.exit_journey(exit_station)
+      #   expect(journeylog.view_log).to include journey
+      # end
+
+      it 'create a journey if one did not exist' do 
+        expect(journey_klass).to receive(:new)
         journeylog.exit_journey(exit_station)
-        expect(journeylog.view_log).to include current_journey
       end
     end
   end
 
   describe '#outstanding_charges' do
     context 'incomplete journey' do
-      it 'should create a new journey' do
-        # allow(current_journey).to receive(:complete_journey?).and_return(false)
-        expect(class_double).to receive(:new).with nil
+      it 'should end an incomplete journey' do
+        journeylog.start_journey(entry_station)
+        expect(journey).to receive(:exit)
         journeylog.outstanding_charges(exit_station)
+      end
+      it 'returns the basic fare amount' do
+        journeylog.start_journey(entry_station)
+        expect(journeylog.outstanding_charges(exit_station)).to eq(Journey::FARE_MIN)
       end
     end
     context 'complete journey' do
-      before do
-        # allow(current_journey).to receive(:complete_journey?).and_return(true)
+      it 'returns 0 amount' do
+        allow(journey).to receive(:complete_journey?).and_return(true)
         journeylog.start_journey(entry_station)
-      end
-      it 'returns the basic fare amount' do
-        expect(journeylog.outstanding_charges(exit_station)).to eq(Journey::FARE_MIN)
+        journeylog.exit_journey(exit_station)
+        expect(journeylog.outstanding_charges(exit_station)).to eq(0)
       end
     end
   end

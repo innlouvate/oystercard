@@ -1,7 +1,7 @@
 require 'journey'
 
 describe Journey do
-  subject(:journey) {described_class.new(entry_station)}
+  subject(:journey) {described_class.new(entry_station: :entry_station)}
   let(:entry_station) { double :entry_station }
   let(:exit_station) { double :exit_station }
   let(:oystercard)  { double :oystercard}

@@ -1,4 +1,4 @@
-require 'Forwardable'
+require 'forwardable'
 
 class JourneyLog
 
@@ -18,33 +18,33 @@ class JourneyLog
 
   def start_journey(station)
     # logs entry station
-    raise 'Already in journey' if current_journey.entry_station
-    add(journey_klass.new(entry_station: station)
+    # raise 'Already in journey' if current_journey.entry_station
+    log(journey_klass.new(entry_station: station))
   end
 
   def outstanding_charges(station)
     # close incomplete journey & return fare
-    if @current_journey == nil
-      @current_journey = @journey_klass.new(nil)
-    end
-    @current_journey.fare
+    incomplete_journey ? incomplete_journey.exit.fare : 0
   end
 
   private
+  attr_reader :journey_klass
+
+  def incomplete_journey
+    @journey_log.reject(&:complete_journey?).first
+  end
 
   def current_journey
-    @current_journey = @journey_klass.new(nil) if @current_journey == nil
-    @current_journey
+    incomplete_journey || journey_klass.new
     # private - return incomplete journey or create new journey
   end
+  #
+  # def reset_journey
+  #   @current_journey = nil
+  # end
 
-  def reset_journey
-    @current_journey = nil
-  end
-
-  def log_current_journey
-    @journey_log << @current_journey
-    reset_journey
+  def log(journey)
+    @journey_log << journey
   end
 
 end

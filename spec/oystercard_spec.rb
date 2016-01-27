@@ -4,14 +4,14 @@ describe Oystercard do
   # subject(:oystercard) {described_class.new(journey_klass)}
   let(:entry_station) { double :entry_station }
   let(:exit_station) { double :exit_station }
-  # let(:class_double) { double :class_double }
+  let(:journey) { double :journey, fare: Journey::FARE_MIN }
   let(:journey_log) { double :journey_log }
   subject(:oystercard) { described_class.new(journey_log) }
 
   before do
     # allow(class_double).to receive(:new).and_return(my_journey)
     allow(journey_log).to receive(:start_journey)
-    allow(journey_log).to receive(:exit_journey)
+    allow(journey_log).to receive(:exit_journey).and_return(journey)
     # allow(my_journey).to receive(:fare).and_return(Journey::FARE_MIN)
   end
 

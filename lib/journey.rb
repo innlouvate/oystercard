@@ -6,17 +6,19 @@ class Journey
   FARE_MIN = 1
   PENALTY_FARE = 6
 
-  def initialize(entry_station)
+  def initialize(entry_station = nil)
     @entry_station = entry_station
+    @complete = false
   end
 
-  def exit(exit_station)
+  def exit(exit_station = nil)
     @exit_station = exit_station
+    @complete = true
     self
   end
 
   def complete_journey?
-    !entry_station || !exit_station ? false : true
+    @complete
   end
 
   def fare
