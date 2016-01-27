@@ -31,8 +31,8 @@ class Oystercard
     # if @current_journey == nil
     #   @current_journey = @journey_class.new(nil)
     # end
-    @journey_log.exit_journey(station)
-    deduct(Journey::FARE_MIN)
+    journey = @journey_log.exit_journey(station)
+    deduct(journey.fare)
     # end_journey(station)
   end
 

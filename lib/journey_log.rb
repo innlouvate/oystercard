@@ -1,7 +1,10 @@
+require 'Forwardable'
 
 class JourneyLog
 
+  extend Forwardable
 
+  def_delegator :current_journey, :exit, :exit_journey
 
   def initialize(journey_klass = Journey)
     # inject jouney class
@@ -15,14 +18,8 @@ class JourneyLog
 
   def start_journey(station)
     # logs entry station
-    @current_journey = @journey_klass.new(station)
-  end
-
-  def exit_journey(station)
-    # add exit station to current_journey
-    # @current_journey.exit(station)
-    outstanding_charges(station)
-    log_current_journey
+    raise 'Already in journey' if current_journey.entry_station
+    add(journey_klass.new(entry_station: station)
   end
 
   def outstanding_charges(station)
@@ -30,7 +27,6 @@ class JourneyLog
     if @current_journey == nil
       @current_journey = @journey_klass.new(nil)
     end
-    @current_journey.exit(station)
     @current_journey.fare
   end
 
