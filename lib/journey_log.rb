@@ -2,7 +2,7 @@ require './lib/oystercard.rb'
 require './lib/station.rb'
 require './lib/journey.rb'
 
-class JourneyLog
+class JourneyLog 
 
   attr_reader :current_journey
 
